@@ -194,6 +194,30 @@ function createInvisible(element,easing1,duration,delay){
 
 }
 
+let animFinishPromise=undefined; // ANIMATİON ORDER
+
+const textAnimFirst={
+
+textDivs:document.querySelectorAll(".text-anim-1 :is(.name,.surname)"),
+upAnimClassName:"up",
+timeForFinish:450,
+addUpClass(){
+    const cp=this;
+    this.textDivs.forEach(a=>{
+
+        a.classList.add(cp.upAnimClassName);
+    });
+
+    setTimeout(()=>{
+
+        this.textDivs.forEach(a=>{
+            a.classList.add("invisible");});
+
+    },this.timeForFinish);
+}
+
+
+};
 
 
 
@@ -212,13 +236,31 @@ const animationsInv=[];
 
 allImages.forEach(function(item,ind,arr){
 
- animationsUp.push(createUp(item,"linear",500,ind*300));
+ animationsUp.push(createUp(item,"linear",400,ind*300));
 
  if(ind==arr.length-1){
      let time=ind*300;
     allImages.forEach(function(item,ind,arr){
+        if(!item.classList.contains("logo-items")){
 
-        animationsInv.push(createInvisible(item,"linear",800,time+500));
+            animationsInv.push(createInvisible(item,"linear",600,time+500));
+        }else{
+            animationsInv.push(createInvisible(item,"linear",600,time+1500));
+          
+            animFinishPromise= animationsInv[animationsInv.length-1].finished.then(()=>{
+       
+                document.querySelector(".first-sec").remove();
+                 return Promise.resolve("first sec is erased");
+                });
+
+           animFinishPromise= animFinishPromise.then(()=>{
+
+                textAnimFirst.addUpClass();
+                return Promise.resolve("text animation first finished...");
+            })
+            
+          
+        }
 
     });
     }
@@ -259,8 +301,7 @@ window.addEventListener("resize",function(){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
   
  
-   // debounceScrollTimer(setFlexSizePromise,500);
-   debounceScrollTimer(scrollFlex.scrollWithoutAnimate,700);
+ 
 
 
 });

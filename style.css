@@ -3,6 +3,7 @@ html,body{
     padding:0;
     background-color: black;;
     will-change: transform;
+  
 }
 
 .first-sec::-webkit-scrollbar{
@@ -92,9 +93,57 @@ text-align: center;
 
 }
 
+.text-anim-1{
 
 
+    position: absolute;
+    top:50vh;
+    left:50vw;
+   
+  
+    transform: translate3d(-50%,-50%,0);
+    color: white;
+    text-align: center;
 
 
+    & :is(.name,.surname){
 
+        overflow: hidden;
+transition: 2000ms ease-in opacity;;
+    }
 
+    & :is(.name,.surname)::after{
+
+        transition: 400ms ease-in transform;
+        display: block;
+        font-family: 'Cinzel', serif;
+        font-size: 8rem;
+        transform: translateY(100%);
+        
+    
+
+    }
+    & .name::after{
+
+        content:"EMRE";
+        font-weight:300;
+
+    }
+
+    & .surname::after{
+
+        content:"GOKMENLER";
+        font-weight: 800;
+    }
+
+}
+
+.up::after{
+
+transform: translateY(0) !important;
+
+}
+
+.invisible{
+    opacity: 0;;
+}
