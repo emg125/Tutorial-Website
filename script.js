@@ -199,21 +199,36 @@ let animFinishPromise=undefined; // ANIMATİON ORDER
 const textAnimFirst={
 
 textDivs:document.querySelectorAll(".text-anim-1 :is(.name,.surname)"),
-upAnimClassName:"up",
-timeForFinish:450,
-addUpClass(){
-    const cp=this;
-    this.textDivs.forEach(a=>{
+createUpAnimation(){
 
-        a.classList.add(cp.upAnimClassName);
+    const animup=new Animation(new KeyframeEffect(this.textDivs[0],[{transform: "translateY(0%)"}],{ duration: 1000, fill: "forwards" ,easing:"ease-in", pseudoElement: '::after'}));
+    const animup2=new Animation(new KeyframeEffect(this.textDivs[1],[{transform: "translateY(0%)"}],{ duration: 1000, fill: "forwards" ,easing:"ease-in", pseudoElement: '::after'}));
+    return [animup,animup2];
+
+},
+playClip(){
+
+    const container1=document.querySelector(".text-anim-1");
+    const cli=container1.animate([{clipPath:"inset(0rem 0rem 0 0rem)"},{clipPath:"inset(0rem 0rem 100% 0rem)"}],{duration:500,fill:"forwards",easing:"ease-in"});
+
+    return cli.finished.then(()=>{
+        container1.remove();
+        return Promise.resolve("clip bitti");
     });
+},
+playUp(){
+const [animup,animup2]=this.createUpAnimation();
+animup.play();
+animup2.play();
 
-    setTimeout(()=>{
+const clipAnimate=this.playClip;
+const allFinishPromise=animup.finished.then(()=>{
 
-        this.textDivs.forEach(a=>{
-            a.classList.add("invisible");});
+return clipAnimate();
+});
 
-    },this.timeForFinish);
+return allFinishPromise;
+
 }
 
 
@@ -253,12 +268,14 @@ allImages.forEach(function(item,ind,arr){
                  return Promise.resolve("first sec is erased");
                 });
 
+                //emre gökmenler clip bitince
            animFinishPromise= animFinishPromise.then(()=>{
-
-                textAnimFirst.addUpClass();
-                return Promise.resolve("text animation first finished...");
+                //text reveal animation
+                const lastClipPromise=textAnimFirst.playUp();
+                return lastClipPromise;
             })
-            
+            animFinishPromise.then(()=>{console.log("ksksk")});//clip bitince
+
           
         }
 
