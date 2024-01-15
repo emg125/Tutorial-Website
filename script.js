@@ -1,5 +1,6 @@
 
 
+import {setIpadGradient,basicSettings} from "./ipad.js";
 
 
 function setFlexWidth(totalSize,itemNumber,margin){
@@ -274,7 +275,19 @@ allImages.forEach(function(item,ind,arr){
                 const lastClipPromise=textAnimFirst.playUp();
                 return lastClipPromise;
             })
-            animFinishPromise.then(()=>{console.log("ksksk")});//clip bitince
+           animFinishPromise= animFinishPromise.then(()=>{
+
+            document.querySelector(".main-screen").style.display="block";
+
+            const radials=document.querySelectorAll(":is(.left-1,.right-1)");
+           [...radials].forEach(function(a){
+
+            a.style.height=`${a.getBoundingClientRect().width}px`;
+
+           })
+
+            return Promise.resolve("ana ekran göründü...");
+            });//clip bitince
 
           
         }
@@ -284,7 +297,152 @@ allImages.forEach(function(item,ind,arr){
 });
 
 
+
+
+//ana ekran display olunca animfinishpromise resolve olunca
+
+function clipDisplay(heightRatio,y,duration){
+   
+    
+   
+
+    this.element.insertAdjacentHTML("beforeend" ,this.htmlRect.replace("?",`${y}`).replace("?2",`${heightRatio}`));
+    this.clipRect=document.querySelectorAll("#clipPath1 rect")[document.querySelectorAll("#clipPath1 rect").length-1];
+    this.heightRatio=heightRatio;
+    this.y=y;
+
+    this.easing1=easeInCubic;
+    this.isLast=false;
+    this.duration=duration;
+    this.timeStart=undefined;
+    this.clipAnimation=function(time){
+
+        if(!this.timeStart){
+
+            this.timeStart=time;
+        }
+    
+        const iteration=time - this.timeStart;
+        let value=easeInCubic(iteration,1,-1,this.duration);
+       if(value<0) value=0;
+        
+        this.clipRect.setAttribute("x",String(value));
+
+        if(iteration<this.duration){
+           
+            requestAnimationFrame(this.reqClipAnimation);
+        }else{
+            if(this.isLast){
+                document.querySelector(".head").style.opacity="1";
+            }
+        }
+
+    };
+    this.reqClipAnimation=this.clipAnimation.bind(this);
+    
+};
+
+clipDisplay.prototype.element=document.querySelector("#clipPath1");
+clipDisplay.prototype.htmlRect=`<rect x="1" y="?" width="1" height="?2" />`;
+
+
+const allClips=[];
+for(let i=0;i<10;i++){
+
+    allClips.push(new clipDisplay(0.1,0.1*i,i*200+500));
+}
+
+
+
+animFinishPromise=animFinishPromise.then(()=>{
+document.querySelector(".back-header").style.clipPath=`url("#clipPath1")`;
+
+
+
+allClips.forEach((a,ind,arr)=>{
+a.reqClipAnimation=a.clipAnimation.bind(a);
+if(ind==arr.length-1){
+    a.isLast=true;
+}
+requestAnimationFrame(a.reqClipAnimation);
+
+});
+
+
+});
+
+import { setCircleAnim,ParallaxHeaderImage ,createCircleImage} from "./circleanim.js";
+
+animFinishPromise=animFinishPromise.then(()=>{
+
+    const scroller=document.querySelector(".back-header");
+
+    for(let i=1;i<4;i++){
+
+        const leftImages=new createCircleImage(`<img src="../images/backheader${i}.jpg" alt="">`,document.querySelector(".back-header-sol"),`${i}`);
+        leftImages.createImages(3);
+
+        const rightImages=new createCircleImage(`<img src="../images/backheader${i}.jpg" alt="">`,document.querySelector(".back-header-sag"),`${i}`);
+        rightImages.createImages(3);
+    }
+   
+
+    const left={
+        images:document.querySelectorAll(".back-header-sol img"),
+        lastTransform:"translateX(-200px)"
+
+    };
+
+    const right={
+        images:document.querySelectorAll(".back-header-sag img"),
+        lastTransform:"translateX(200px)"
+
+    };
+
+    [...left.images].forEach(function(a){
   
+       const anim= new ParallaxHeaderImage(scroller,a);
+       anim.createAnimation(left.lastTransform);
+    });
+
+    [...right.images].forEach(function(a){
+
+        const anim= new ParallaxHeaderImage(scroller,a);
+        anim.createAnimation(right.lastTransform);
+     });
+
+
+     
+
+    return Promise.resolve("clip path rectangle for circle anim has set");
+
+
+});
+
+
+//computer get bigger
+animFinishPromise=animFinishPromise.then(()=>{
+    
+
+    basicSettings();
+    setIpadGradient();
+    setCircleAnim();
+
+    return Promise.resolve("computer getbigger is set");
+
+});
+ 
+//buradan anime devam
+animFinishPromise=animFinishPromise.then(function(){
+
+
+
+
+
+});
+
+
+
 
 if(window.innerWidth>=992){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
@@ -313,6 +471,21 @@ if(window.innerWidth>=992){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         
         });
 }
+
+
+window.addEventListener("load",function(){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ 
+  setTimeout(() => {
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant",
+      });
+
+  }, 100);
+    
+
+});
 
 window.addEventListener("resize",function(){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  
